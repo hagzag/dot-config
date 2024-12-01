@@ -1,11 +1,29 @@
 version: '3'
 
+dotenv:
+  - .env
+
 tasks:
+
+
+
 
   xcode:rosetta:
     desc: Install Xcode CLI tools
     cmds:
       - softwareupdate --install-rosetta
+
+  bash:dot_config:get:
+    silent: true
+    # deps:
+    #   - var: DOT_CONFIG_REPO
+    desc: Get dot_config from repo
+    dir: ~/.config
+    cmds:
+      - git remote -v | grep $DOT_CONFIG_REPO || git clone $DOT_CONFIG_REPO ~/.config
+      - git fetch
+      - git checkout main
+      # - git reset --hard origin/main
 
   bash:xdg-setup:
     summary: |
