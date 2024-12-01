@@ -1,0 +1,30 @@
+# History file location
+export HISTFILE="$XDG_CACHE_HOME/bash_history"
+
+# History file size (number of lines)
+export HISTSIZE=5000
+export HISTFILESIZE=1500000
+
+# Add timestamps to history
+export HISTTIMEFORMAT='[%F %T] '
+
+# Ignore common commands
+export HISTIGNORE='pwd:jobs:ll:ls:l:fg:history:clear:exit'
+
+# Avoid duplicates and lines starting with space
+export HISTCONTROL=ignoreboth
+
+# Append to history file, don't overwrite
+shopt -s histappend
+
+# Save multi-line commands in history as single line
+shopt -s cmdhist
+
+# Allow re-editing of failed history substitution
+shopt -s histreedit
+
+# Allow editing of the command line after history expansion
+shopt -s histverify
+
+# Sync history between terminals
+PROMPT_COMMAND="history -a; history -c; history -r"

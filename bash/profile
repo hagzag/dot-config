@@ -1,0 +1,6 @@
+source "$HOME/.bash_env"
+source "$HOME/.bashrc"
+
+source "$XDG_CONFIG_HOME/bash/rc"
+
+export GPG_TTY=$(tty)
