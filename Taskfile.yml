@@ -1,0 +1,22 @@
+version: '3'
+
+tasks:
+
+  setup-bash:
+    summary: |
+      Setup .config on a new machine.
+      git clone this repo into ~/.config
+      cd ~/.config and run this task
+
+    cmds:
+      - test -d "$HOME/.config" || mkdir -p "$HOME/.config"
+      - test -d "$HOME/.cache" || mkdir -p "$HOME/.cache"
+      - test -d "$HOME/.local/share" || mkdir -p "$HOME/.local/share"
+      - test -d "$HOME/.local/state" || mkdir -p "$HOME/.local/state" 
+      - test -L ~/.bash_env || ln -s ~/.config/bash/env ~/.bash_env && echo "bash env link exists"
+      - test -L ~/.bashrc || ln -s ~/.config/bash/rc ~/.bashrc && echo "bashrc link exists"
+      - test -L ~/.bash_profile || ln -s ~/.config/bash/profile ~/.bash_profile && echo "bash profile link exists"
+  
+  build:
+    cmds:
+      - echo "Building..."
