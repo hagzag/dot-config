@@ -17,6 +17,57 @@ tasks:
       - test -L ~/.bashrc || ln -s ~/.config/bash/rc ~/.bashrc && echo "bashrc link exists"
       - test -L ~/.bash_profile || ln -s ~/.config/bash/profile ~/.bash_profile && echo "bash profile link exists"
   
-  build:
+  brew:
+    dir: &brefiledir ~/.config
+    desc: Manage Homebrew operations
     cmds:
-      - echo "Building..."
+      - task: brew:status
+
+  brew:status:
+    dir: *brefiledir
+    desc: Check Brewfile status and show outdated packages
+    cmds:
+      - brew bundle check --verbose
+      - brew outdated
+
+  brew:dump:
+    dir: *brefiledir
+    desc: Update Brewfile with current packages
+    cmds:
+      - brew bundle dump --force --file Brewfile
+      - echo "Brewfile has been updated"
+
+  brew:install:
+    dir: *brefiledir
+    desc: Install all dependencies from Brewfile
+    cmds:
+      - brew bundle install --file Brewfile
+
+  brew:commit:
+    dir: *brefiledir
+    desc: Commit Brewfile to git
+    cmds:
+      - |
+        if git diff --quiet Brewfile; then
+          echo "No changes to Brewfile"
+        else
+          git add Brewfile && echo "Brewfile has been added"
+          git commit -m "Update Brewfile" && echo "Brewfile has been committed"
+          git push && echo "Brewfile has been pushed"
+        fi
+
+  brew:cleanup:
+    dir: *brefiledir
+    desc: Remove unused dependencies
+    cmds:
+      - brew bundle cleanup --force --file Brewfile
+  
+  brew:debug:
+    dir: *brefiledir
+    desc: Show Homebrew debug information and Brewfile location
+    cmds:
+      - echo "Current directory $PWD"
+      - echo "Looking for Brewfile in $PWD/Brewfile"
+      - test -f Brewfile && echo "✅ Brewfile exists in current directory" || echo "❌ No Brewfile in current directory"
+      - brew bundle --debug --file Brewfile
+      - brew config
