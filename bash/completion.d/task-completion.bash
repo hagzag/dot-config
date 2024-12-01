@@ -53,4 +53,3 @@ function _task()
 }
 
 complete -F _task task
-

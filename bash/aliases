@@ -9,7 +9,6 @@ alias llh='ls -alFh'
 alias lld='ls -Gal --color=always | grep ^d --colour=never'
 unset LS
 
-
 hash gdircolors 2>/dev/null && alias dircolors=gdircolors
 hash gsort 2>/dev/null && alias sort=gsort
 

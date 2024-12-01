@@ -17,16 +17,16 @@ fi
 complete -C "$(brew --prefix)/bin/aws_completer" aws
 
 # git completion
-complete <(cat ~/.config/bash/.git-completion.bash)
+complete <(cat ~/.config/bash/completion.d/git-completion.bash)
 
 # task cimpletion
-complete <(cat ~/.config/bash/task-completion.bash)
+complete <(cat ~/.config/bash/completion.d/task-completion.bash)
 
 # Kubernetes
 complete -o default -F __start_kubectl k
 
 # terraform-docs
-complete <(cat ~/.config/bash/terraform-docs-completion.bash)
+complete <(cat ~/.config/bash/completion.d/terraform-docs-completion.bash)
 
 # Extra macOS stuff
 if [[ "$OSTYPE" == "darwin"* ]]; then

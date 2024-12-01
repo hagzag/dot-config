@@ -2,12 +2,16 @@ version: '3'
 
 tasks:
 
-  setup-bash:
+  xcode:rosetta:
+    desc: Install Xcode CLI tools
+    cmds:
+      - softwareupdate --install-rosetta
+
+  bash:xdg-setup:
     summary: |
       Setup .config on a new machine.
       git clone this repo into ~/.config
       cd ~/.config and run this task
-
     cmds:
       - test -d "$HOME/.config" || mkdir -p "$HOME/.config"
       - test -d "$HOME/.cache" || mkdir -p "$HOME/.cache"
@@ -17,34 +21,36 @@ tasks:
       - test -L ~/.bashrc || ln -s ~/.config/bash/rc ~/.bashrc && echo "bashrc link exists"
       - test -L ~/.bash_profile || ln -s ~/.config/bash/profile ~/.bash_profile && echo "bash profile link exists"
   
+  # Homebrew
+
   brew:
-    dir: &brefiledir ~/.config
+    dir: &brewfiledir ~/.config
     desc: Manage Homebrew operations
     cmds:
       - task: brew:status
 
   brew:status:
-    dir: *brefiledir
+    dir: *brewfiledir
     desc: Check Brewfile status and show outdated packages
     cmds:
       - brew bundle check --verbose
       - brew outdated
 
   brew:dump:
-    dir: *brefiledir
+    dir: *brewfiledir
     desc: Update Brewfile with current packages
     cmds:
       - brew bundle dump --force --file Brewfile
       - echo "Brewfile has been updated"
 
   brew:install:
-    dir: *brefiledir
+    dir: *brewfiledir
     desc: Install all dependencies from Brewfile
     cmds:
       - brew bundle install --file Brewfile
 
   brew:commit:
-    dir: *brefiledir
+    dir: *brewfiledir
     desc: Commit Brewfile to git
     cmds:
       - |
@@ -57,13 +63,13 @@ tasks:
         fi
 
   brew:cleanup:
-    dir: *brefiledir
+    dir: *brewfiledir
     desc: Remove unused dependencies
     cmds:
       - brew bundle cleanup --force --file Brewfile
   
   brew:debug:
-    dir: *brefiledir
+    dir: *brewfiledir
     desc: Show Homebrew debug information and Brewfile location
     cmds:
       - echo "Current directory $PWD"
@@ -71,3 +77,62 @@ tasks:
       - test -f Brewfile && echo "✅ Brewfile exists in current directory" || echo "❌ No Brewfile in current directory"
       - brew bundle --debug --file Brewfile
       - brew config
+
+  # Pre-commit
+
+  pre-commit:get:
+    desc: "internal | exec - install pre-commit via homebrew"
+    cmds:
+    - echo "This might take a while on first-run ..."
+    - pre-commit help &>/dev/null || brew install pre-commit
+
+  pre-commit:install:
+    desc: "internal | configure | pre-commit to local repo"
+    deps: [pre-commit:get]
+    cmds:
+    - pre-commit install
+
+  pre-commit:run:
+    desc: "internal | execute | run-all pre-commit run on the staged files (files which are going to be commited)"
+    cmds:
+    - pre-commit run
+
+  pre-commit:run-all-files:
+    desc: "internal | execute | run-all pre-commit against all files"
+    cmds:
+    - pre-commit run --all-files
+
+
+  # Git
+
+  git:lfs:
+    silent: true
+    desc: "internal | install git-lfs"
+    cmds:
+    - brew install git-lfs
+    - git-lfs install
+    - git-lfs version && echo "✅ git-lfs installed" || echo "❌ git-lfs is not installed"
+
+  git:config:
+    desc: "internal | configure git"
+    cmds:
+    # - git config --global user.name "John Doe"
+    # - git config --global user.email "john.doe@example.com"
+    - test -f ~/.config/git/.gitconfig && echo "git config exists"
+    - test -f ~/.gitconfig && mv ~/.gitconfig ~/.gitconfig.bak || true
+    - test -L ~/.gitconfig && echo "git config link exists" || ln -s ~/.config/git/.gitconfig ~/.gitconfig
+    - diff ~/.config/git/.gitconfig ~/.gitconfig && echo "git config is up to date" 
+    - cat ~/.gitconfig
+
+  gnupg:
+    desc: "internal | install gnupg"
+    cmds:
+    - brew install gnupg
+
+  gnupg:validate:
+    desc: "internal | validate gnupg"
+    silent: true
+    cmds:
+    - gpg --version && echo "✅ gnupg installed" || echo "❌ gnupg is not installed"
+    - gpg --list-keys | grep -q $USER && echo "✅ gnupg keys seems valid for user $USER" || echo "❌ gnupg is not valid for user $USER"
+    - gpg --list-secret-keys | grep -q $USER && echo "✅ gnupg seems valid for user $USER" || echo "❌ gnupg is not valid for user $USER"
