@@ -1,0 +1,34 @@
+#!/bin/bash
+
+function reveal(){
+  secret=$1
+  kubectl get secret $secret -o json | jq '.data | map_values(@base64d)'
+}
+
+function kinns(){
+NS=$1
+kubectl api-resources --verbs=list --namespaced -o name | xargs -n 1 kubectl get --show-kind --ignore-not-found -n $NS
+}
+
+function kwho(){
+  kubectl config view --template='{{ range .contexts }}{{ if eq .name "'$(kubectl config current-context)'" }}Current user: {{ printf "%s\n" .context.user }}{{ end }}{{ end }}'
+}
+
+function aws_set_profile(){
+  profile=$1
+  AWS_PROFILE=$profile
+  export AWS_PROFILE
+  aws sts get-caller-identity
+}
+
+function aws_list_profiles(){
+  cat ~/.aws/credentials | grep '^\[' | sed 's/\[\]//g'
+  cat ~/.aws/config | grep '^\[' | sed 's/\[\]//g'
+}
+
+# SparkBeyond
+
+function sb_get(){
+target=${1}
+aws ec2 describe-instances --no-cli-pager --filters "Name=instance-state-name,Values=running" "Name=tag:Name,Values=*${target}*" --query "Reservations[].Instances[].[InstanceId,PrivateDnsName,Tags[?(Key=='Name')]]" --output text
+}
