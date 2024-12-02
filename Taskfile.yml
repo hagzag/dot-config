@@ -3,18 +3,19 @@ version: '3'
 dotenv:
   - .env
 
+silent: true
+
 tasks:
 
-
-
-
+  # xcode
   xcode:rosetta:
     desc: Install Xcode CLI tools
+    platforms: [darwin]
     cmds:
       - softwareupdate --install-rosetta
 
+  # bash
   bash:dot_config:get:
-    silent: true
     # deps:
     #   - var: DOT_CONFIG_REPO
     desc: Get dot_config from repo
@@ -23,7 +24,6 @@ tasks:
       - git remote -v | grep $DOT_CONFIG_REPO || git clone $DOT_CONFIG_REPO ~/.config
       - git fetch
       - git checkout main
-      # - git reset --hard origin/main
 
   bash:xdg-setup:
     summary: |
@@ -35,10 +35,9 @@ tasks:
       - test -d "$HOME/.cache" || mkdir -p "$HOME/.cache"
       - test -d "$HOME/.local/share" || mkdir -p "$HOME/.local/share"
       - test -d "$HOME/.local/state" || mkdir -p "$HOME/.local/state" 
-      - test -L ~/.bash_env || ln -s ~/.config/bash/env ~/.bash_env && echo "bash env link exists"
-      - test -L ~/.bashrc || ln -s ~/.config/bash/rc ~/.bashrc && echo "bashrc link exists"
-      - test -L ~/.bash_profile || ln -s ~/.config/bash/profile ~/.bash_profile && echo "bash profile link exists"
-  
+      - test -L ~/.bash_env || ln -s ~/.config/bash/env ~/.bash_env && echo "✅ bash env link exists"
+      - test -L ~/.bashrc || ln -s ~/.config/bash/rc ~/.bashrc && echo "✅ bashrc link exists"
+      - test -L ~/.bash_profile || ln -s ~/.config/bash/profile ~/.bash_profile && echo "✅ bash profile link exists"
   # Homebrew
 
   brew:
@@ -59,13 +58,14 @@ tasks:
     desc: Update Brewfile with current packages
     cmds:
       - brew bundle dump --force --file Brewfile
-      - echo "Brewfile has been updated"
+      - echo "✅ Brewfile has been updated"
 
   brew:install:
     dir: *brewfiledir
     desc: Install all dependencies from Brewfile
     cmds:
       - brew bundle install --file Brewfile
+      - echo "✅ Brewfile has been used for install"
 
   brew:commit:
     dir: *brewfiledir
@@ -73,11 +73,11 @@ tasks:
     cmds:
       - |
         if git diff --quiet Brewfile; then
-          echo "No changes to Brewfile"
+          echo "✅ No changes to Brewfile"
         else
-          git add Brewfile && echo "Brewfile has been added"
-          git commit -m "Update Brewfile" && echo "Brewfile has been committed"
-          git push && echo "Brewfile has been pushed"
+          git add Brewfile && echo "✅ Brewfile has been added"
+          git commit -m "Update Brewfile" && echo "✅ Brewfile has been committed"
+          git push origin main && echo "✅ Brewfile has been pushed"
         fi
 
   brew:cleanup:
@@ -85,6 +85,7 @@ tasks:
     desc: Remove unused dependencies
     cmds:
       - brew bundle cleanup --force --file Brewfile
+      - echo "✅ System is up2date with Brewfile"
   
   brew:debug:
     dir: *brewfiledir
@@ -93,7 +94,9 @@ tasks:
       - echo "Current directory $PWD"
       - echo "Looking for Brewfile in $PWD/Brewfile"
       - test -f Brewfile && echo "✅ Brewfile exists in current directory" || echo "❌ No Brewfile in current directory"
+      - echo "✅ Homebrew debug information"
       - brew bundle --debug --file Brewfile
+      - echo "✅ Homebrew config"
       - brew config
 
   # Pre-commit
@@ -120,7 +123,6 @@ tasks:
     cmds:
     - pre-commit run --all-files
 
-
   # Git
 
   git:lfs:
@@ -131,11 +133,28 @@ tasks:
     - git-lfs install
     - git-lfs version && echo "✅ git-lfs installed" || echo "❌ git-lfs is not installed"
 
-  git:config:
-    desc: "internal | configure git"
+  git:config:generator:
+    desc: "internal | generate git config"
+    requires:
+      vars: [ USER_EMAIL, USER_FULL_NAME ]
     cmds:
-    # - git config --global user.name "John Doe"
-    # - git config --global user.email "john.doe@example.com"
+    - git config --global user.name "{{.USER_FULL_NAME}}"
+    - git config --global user.email "{{.USER_EMAIL}}"
+    - |
+      test -n "{{.USER_SIGNING_KEY}}" && git config --global user.signingkey "{{.USER_SIGNING_KEY}}"
+      test -n "{{.USER_SIGNING_KEY}}" && git config --global commit.gpgsign true
+    - echo "✅ Git config has been set to:"
+    - cat ~/.gitconfig
+
+  git:config:from-repo:
+    desc: "internal | configure git"
+    summary: |
+      Copy git config from repo to local machine
+      If git config already exists, it will be backed up to ~/.gitconfig.bak
+      If git config link already exists, it will be removed
+      If git config is different from repo version, it will be updated
+      Show the result git config
+    cmds:
     - test -f ~/.config/git/.gitconfig && echo "git config exists"
     - test -f ~/.gitconfig && mv ~/.gitconfig ~/.gitconfig.bak || true
     - test -L ~/.gitconfig && echo "git config link exists" || ln -s ~/.config/git/.gitconfig ~/.gitconfig
@@ -149,8 +168,9 @@ tasks:
 
   gnupg:validate:
     desc: "internal | validate gnupg"
-    silent: true
+    requires:
+      vars: [ USER_SIGNING_KEY ]
     cmds:
     - gpg --version && echo "✅ gnupg installed" || echo "❌ gnupg is not installed"
-    - gpg --list-keys | grep -q $USER && echo "✅ gnupg keys seems valid for user $USER" || echo "❌ gnupg is not valid for user $USER"
-    - gpg --list-secret-keys | grep -q $USER && echo "✅ gnupg seems valid for user $USER" || echo "❌ gnupg is not valid for user $USER"
+    - gpg --list-keys | grep -q $USER_SIGNING_KEY && echo "✅ gnupg keys seems valid for user $USER" || echo "❌ gnupg is not valid for user $USER"
+    - gpg --list-secret-keys | grep -q $USER_SIGNING_KEY && echo "✅ gnupg seems valid for user $USER" || echo "❌ gnupg is not valid for user $USER"

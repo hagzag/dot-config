@@ -1,7 +1,7 @@
 [user]
-	name = Haggai Philip Zagury
 	email = hagzag@tikalk.com
 	signingkey = 8EB220859A7ACBA039EC434BD2AD73C8B8194575
+	name = Haggai Philip Zagury
 [commit]
 	gpgsign = true
 [init]
