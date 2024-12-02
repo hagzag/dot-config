@@ -16,12 +16,15 @@ tasks:
 
   # bash
   bash:dot_config:get:
-    # deps:
-    #   - var: DOT_CONFIG_REPO
+    requires:
+      vars: [ DOT_CONFIG_REPO ]
     desc: Get dot_config from repo
     dir: ~/.config
+    generates:
+      - ~/.config/
     cmds:
-      - git remote -v | grep $DOT_CONFIG_REPO || git clone $DOT_CONFIG_REPO ~/.config
+      - test -d ~/.config || git clone $DOT_CONFIG_REPO ~/.config && echo "✅ ~/.config exists"
+      - git remote -v | grep $DOT_CONFIG_REPO
       - git fetch
       - git checkout main
 
@@ -38,6 +41,7 @@ tasks:
       - test -L ~/.bash_env || ln -s ~/.config/bash/env ~/.bash_env && echo "✅ bash env link exists"
       - test -L ~/.bashrc || ln -s ~/.config/bash/rc ~/.bashrc && echo "✅ bashrc link exists"
       - test -L ~/.bash_profile || ln -s ~/.config/bash/profile ~/.bash_profile && echo "✅ bash profile link exists"
+  
   # Homebrew
 
   brew:
