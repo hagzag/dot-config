@@ -7,6 +7,38 @@ silent: true
 
 tasks:
 
+  generate:dot:env:
+    desc: Generate .env based on .env.example
+    summary: |
+      Generate .env based on .env.example
+      This will override your existing .env
+      ℹ️ Generating .env file from .env.example\n
+      run this like so:
+        DOT_CONFIG_REPO={{.DOT_CONFIG_REPO}} \\n
+        USER_FULL_NAME={{.USER_FULL_NAME}} \\n
+        USER_EMAIL={{.USER_EMAIL}} \\n
+        USER_SIGNING_KEY={{.USER_SIGNING_KEY}} \\n
+        task generate:dot_env
+    silent: false
+    generates:
+      - .env
+    requires:
+      vars: [ USER_FULL_NAME, USER_EMAIL, DOT_CONFIG_REPO, USER_SIGNING_KEY ]
+    cmds:
+    - |
+
+      if [ -f .env ]; then
+        echo "✅ .env already exists"
+      else
+        cat<<EOF>.env
+        USER_FULL_NAME={{.USER_FULL_NAME}}
+        USER_EMAIL={{.USER_EMAIL}}
+        DOT_CONFIG_REPO={{.DOT_CONFIG_REPO}}
+        USER_SIGNING_KEY={{.USER_SIGNING_KEY}}
+      EOF
+        test -f .env && echo -e "✅ .env successfully generated"
+      fi
+
   # xcode
   xcode:rosetta:
     desc: Install Xcode CLI tools
@@ -37,11 +69,11 @@ tasks:
       - test -d "$HOME/.config" || mkdir -p "$HOME/.config"
       - test -d "$HOME/.cache" || mkdir -p "$HOME/.cache"
       - test -d "$HOME/.local/share" || mkdir -p "$HOME/.local/share"
-      - test -d "$HOME/.local/state" || mkdir -p "$HOME/.local/state" 
+      - test -d "$HOME/.local/state" || mkdir -p "$HOME/.local/state"
       - test -L ~/.bash_env || ln -s ~/.config/bash/env ~/.bash_env && echo "✅ bash env link exists"
       - test -L ~/.bashrc || ln -s ~/.config/bash/rc ~/.bashrc && echo "✅ bashrc link exists"
       - test -L ~/.bash_profile || ln -s ~/.config/bash/profile ~/.bash_profile && echo "✅ bash profile link exists"
-  
+
   # Homebrew
 
   brew:
@@ -80,7 +112,7 @@ tasks:
           echo "✅ No changes to Brewfile"
         else
           git add Brewfile && echo "✅ Brewfile has been added"
-          git commit -m "Update Brewfile" && echo "✅ Brewfile has been committed"
+          git commit Brewfile -m "chore: Update Brewfile" && echo "✅ Brewfile has been committed"
           git push origin main && echo "✅ Brewfile has been pushed"
         fi
 
@@ -90,7 +122,7 @@ tasks:
     cmds:
       - brew bundle cleanup --force --file Brewfile
       - echo "✅ System is up2date with Brewfile"
-  
+
   brew:debug:
     dir: *brewfiledir
     desc: Show Homebrew debug information and Brewfile location
@@ -162,8 +194,10 @@ tasks:
     - test -f ~/.config/git/.gitconfig && echo "git config exists"
     - test -f ~/.gitconfig && mv ~/.gitconfig ~/.gitconfig.bak || true
     - test -L ~/.gitconfig && echo "git config link exists" || ln -s ~/.config/git/.gitconfig ~/.gitconfig
-    - diff ~/.config/git/.gitconfig ~/.gitconfig && echo "git config is up to date" 
+    - diff ~/.config/git/.gitconfig ~/.gitconfig && echo "git config is up to date"
     - cat ~/.gitconfig
+
+  # gpg
 
   gnupg:
     desc: "internal | install gnupg"
@@ -178,3 +212,88 @@ tasks:
     - gpg --version && echo "✅ gnupg installed" || echo "❌ gnupg is not installed"
     - gpg --list-keys | grep -q $USER_SIGNING_KEY && echo "✅ gnupg keys seems valid for user $USER" || echo "❌ gnupg is not valid for user $USER"
     - gpg --list-secret-keys | grep -q $USER_SIGNING_KEY && echo "✅ gnupg seems valid for user $USER" || echo "❌ gnupg is not valid for user $USER"
+
+  # IDE
+
+  create-vscode-config:
+    desc: creates a .vscode/settings.json
+    # internal: true
+    generates:
+    - .vscode/settings.json
+    prompt: This will override your existing .vscode ... Do you want to continue?
+    cmds:
+    - test -d .vscode || mkdir .vscode
+    - |
+      cat<<EOF>.vscode/settings.json
+      {
+        "yaml.schemas": {
+          "https://taskfile.dev/schema.json": [
+            "tasks/*.yaml",
+            "Taskfile.yml",
+          ]
+        }
+      }
+      EOF
+
+  # AWS
+
+  # AWS credentials tutorial task
+  aws:tutorial:credentials:
+    desc: "Guide on how to set AWS credentials"
+    cmds:
+      - |
+        echo "To set up AWS credentials, you need to provide the following environment variables:"
+        echo ""
+        echo "export AWS_ACCESS_KEY_ID='<your-access-key-id>'"
+        echo "export AWS_SECRET_ACCESS_KEY='<your-secret-access-key>'"
+        echo "# Optionally, you can also provide a session token for temporary credentials"
+        echo "export AWS_SESSION_TOKEN='<your-session-token>'"
+        echo ""
+        echo "Once these are set, run 'task aws:validate:login' to confirm the setup."
+
+  aws:validate:credentials:
+    desc: "Validate AWS credentials login"
+    cmds:
+      - |
+        if [ -z "$AWS_ACCESS_KEY_ID" ] || [ -z "$AWS_SECRET_ACCESS_KEY" ]; then
+          echo " 🚩 AWS credentials are not set. Please configure AWS credentials."
+          echo " 🚩 You can do this by running 'aws configure' or by setting the AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY environment variables."
+          echo " 🚩 You can also run 'task aws-credentials-tutorial' to get more information."
+          exit 1
+        else
+          echo "✅ AWS credentials are set, running 'aws sts get-caller-identity'"
+          aws sts get-caller-identity
+        fi
+
+  # GCP
+
+  gcp:tutorial:credentials:
+    desc: "Guide on how to set GCP credentials"
+    cmds:
+      - |
+        echo "To set up GCP credentials, you need to provide a service account JSON key."
+        echo ""
+        echo "1. Download the service account JSON key from your GCP console."
+        echo "2. Set the following environment variable:"
+        echo "export GOOGLE_APPLICATION_CREDENTIALS='<path-to-your-json-key>'"
+        echo ""
+        echo "Once this is set, run 'task gcp:validate:credentials' to confirm the setup."
+
+  gcp:tutorial:login:
+    desc: "Guide on how to login to GCP"
+    cmds:
+      - gcloud auth login
+
+  gcp:validate:credentials:
+    desc: "Validate GCP credentials login"
+    cmds:
+      - |
+        if [ -z "$GOOGLE_APPLICATION_CREDENTIALS" ]; then
+          echo " 🚩 GCP credentials are not set. Please configure GCP credentials."
+          echo " 🚩 You can do this by running 'gcloud auth login' or by setting the GOOGLE_APPLICATION_CREDENTIALS environment variable."
+          echo " 🚩 You can also run 'task gcp:tutorial:credentials' to get more information."
+          exit 1
+        else
+          echo "GCP credentials are set."
+          gcloud auth list
+        fi

@@ -10,6 +10,9 @@ A comprehensive dotfiles management system using Taskfile for automated macOS en
 - Pre-commit hooks integration
 - Bash environment configuration
 - Rosetta 2 support for Apple Silicon
+- EditorConfig for consistent coding styles
+- Cloud provider credential management (AWS, GCP)
+- VS Code configuration
 
 ## 🚀 Prerequisites
 
@@ -64,33 +67,82 @@ cp .env.example .env  # Configure your environment variables
 - `task pre-commit:run` - Run pre-commit checks on staged files
 - `task pre-commit:run-all-files` - Run pre-commit checks on all files
 
+### IDE Configuration
+- `task create-vscode-config` - Creates VS Code settings with Taskfile schema support
+
+### Cloud Provider Setup
+#### AWS
+- `task aws:tutorial:credentials` - Guide for setting up AWS credentials
+- `task aws:validate:credentials` - Validate AWS credentials configuration
+
+#### GCP
+- `task gcp:tutorial:credentials` - Guide for setting up GCP service account
+- `task gcp:tutorial:login` - Interactive GCP login process
+- `task gcp:validate:credentials` - Validate GCP credentials configuration
+
 ## 📁 Directory Structure
 
 ```
 ~/.config/
-├── .env                # Environment variables
+├── .env                # environment variables part of .gitignore - intended to be used for local development
+├── .env-example        # Template for environment variables
+├── .editorconfig       # Editor configuration for consistent coding styles
 ├── Brewfile           # Homebrew dependencies
 ├── Taskfile.yml       # Task definitions
+├── .vscode/           # VS Code configuration
 ├── bash/              # Bash configuration files
-│   ├── env
-│   ├── profile
-│   └── rc
+│   ├── env            # ~/.bash_env links to this
+│   ├── profile        # ~/.bash_profile links to this
+│   └── rc             # ~/.bashrc links to this
 └── git/               # Git configuration
-    └── .gitconfig
+    └── .gitconfig     # ~/.gitconfig links to this
 ```
 
 ## ⚙️ Configuration
 
-1. Copy the example environment file:
+### EditorConfig
+The repository includes an `.editorconfig` file that maintains consistent coding styles across different editors and IDEs. It provides settings for:
+- Indentation style and size
+- Line endings
+- Character encoding
+- Language-specific configurations (Python, HTML, YAML, etc.)
+
+Make sure your editor has EditorConfig support installed.
+
+### Environment Variables
+The repository uses a `.env` file for configuration. Generate it using the provided task:
+
 ```bash
-cp .env.example .env
+task generate:dot:env \
+  DOT_CONFIG_REPO="your-repo-url" \
+  USER_FULL_NAME="Your Name" \
+  USER_EMAIL="your.email@example.com" \
+  USER_SIGNING_KEY="your-gpg-key"
 ```
 
-2. Configure required variables in `.env`:
+### Cloud Provider Configuration
+
+#### AWS
+
 ```bash
-USER_EMAIL="your.email@example.com"
-USER_FULL_NAME="Your Name"
-USER_SIGNING_KEY="YOUR_GPG_KEY_ID"  # Optional, for commit signing
+# View AWS setup instructions
+task aws:tutorial:credentials
+
+# Validate AWS configuration
+task aws:validate:credentials
+```
+
+#### GCP
+
+```bash
+# View GCP setup instructions
+task gcp:tutorial:credentials
+
+# Login to GCP
+task gcp:tutorial:login
+
+# Validate GCP configuration
+task gcp:validate:credentials
 ```
 
 ## 🤝 Contributing
