@@ -3,7 +3,6 @@
 *.py[co]
 *.swp
 .env
-.env-*
 .TasksTodo.yml
 .vscode/settings.json
 AWSVPNClient

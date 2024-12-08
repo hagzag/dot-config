@@ -5,6 +5,9 @@ dotenv:
 
 silent: true
 
+includes:
+  tools: tasks/tools.yaml
+
 tasks:
 
   generate:dot:env:

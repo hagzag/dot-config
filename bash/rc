@@ -29,7 +29,7 @@ fi
 # Bash prompt setup
 
 if [[ -n $PS1 && -f "$XDG_CONFIG_HOME/bash/.bash_prompt" ]]; then
-  . "$XDG_CONFIG_HOME/bash/.bash_prompt" 
+  . "$XDG_CONFIG_HOME/bash/.bash_prompt"
 	# ps1_dark_theme
   # ps1_white_theme
   ps1_blue_theme
@@ -37,3 +37,7 @@ fi
 
 # Load directory and file colors for GNU ls
 eval "$(dircolors -b $XDG_CONFIG_HOME/bash/dircolors)"
+
+# asdf
+
+source $HOMEBREW_PREFIX/opt/asdf/libexec/asdf.sh
