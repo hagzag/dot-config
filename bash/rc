@@ -37,7 +37,3 @@ fi
 
 # Load directory and file colors for GNU ls
 eval "$(dircolors -b $XDG_CONFIG_HOME/bash/dircolors)"
-
-# asdf
-
-source $HOMEBREW_PREFIX/opt/asdf/libexec/asdf.sh
