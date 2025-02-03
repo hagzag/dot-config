@@ -42,3 +42,6 @@ eval "$(dircolors -b $XDG_CONFIG_HOME/bash/dircolors)"
 export NVM_DIR="$HOME/.nvm"
 [ -s "$HOMEBREW_PREFIX/opt/nvm/nvm.sh" ] && \. "$HOMEBREW_PREFIX/opt/nvm/nvm.sh"  # This loads nvm
 [ -s "$HOMEBREW_PREFIX/opt/nvm/etc/bash_completion.d/nvm" ] && \. "$HOMEBREW_PREFIX/opt/nvm/etc/bash_completion.d/nvm"
+
+# add cargo/bin to path
+export PATH="$HOME/.cargo/bin:$PATH"

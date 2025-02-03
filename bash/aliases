@@ -295,3 +295,5 @@ alias tgd='terragrunt plan -out tfplan-d -destroy'
 # alias tgda='terragrunt plan -out tfplan-d -destroy'
 alias tga='terragrunt apply'
 alias tgaa='terragrunt apply  -auto-approve'
+
+alias python=python3

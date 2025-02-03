@@ -50,3 +50,6 @@ pip/pip.conf
 pip/pip-org.conf
 uv/*
 .DS_Store
+bws/state/*
+pip/*
+actions-runner/*

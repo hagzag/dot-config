@@ -28,6 +28,15 @@ complete -o default -F __start_kubectl k
 # terraform-docs
 complete <(cat ~/.config/bash/completion.d/terraform-docs-completion.bash)
 
+# bws completion
+source <(~/.cargo/bin/bws completions bash)
+
+# kind
+source <(kind completion bash)
+
+# ctlptl completion
+source <(ctlptl completion bash)
+
 # Extra macOS stuff
 if [[ "$OSTYPE" == "darwin"* ]]; then
   # Add tab completion for `defaults read|write NSGlobalDomain`
