@@ -17,7 +17,3 @@
       language: script
       pass_filenames: false
       stages: [pre-commit]
-  - repo: https://github.com/gruntwork-io/pre-commit
-    rev: v0.1.15
-    hooks:
-    - id: helmlint
