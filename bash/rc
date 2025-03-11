@@ -45,3 +45,12 @@ export NVM_DIR="$HOME/.nvm"
 
 # add cargo/bin to path
 export PATH="$HOME/.cargo/bin:$PATH"
+
+# add go/bin to path
+export PATH="$HOME/go/bin:$PATH"
+
+# # add rust/bin to path
+# export PATH="$HOME/rust/bin:$PATH"
+
+bind '"\e[A": history-search-backward'
+bind '"\eOA": history-previous-history'
