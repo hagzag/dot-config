@@ -12,14 +12,11 @@ source "$XDG_CONFIG_HOME/bash/aliases"
 source "$XDG_CONFIG_HOME/bash/utils"
 source "$XDG_CONFIG_HOME/bash/history"
 
-
-
 # Bash settings
 
 if [[ $DISPLAY ]]; then
   shopt -s checkwinsize  # Update LINES and COLUMNS after each command
 fi
-
 
 # Load all completions Homebrew's bash-completion@2 has prepared
 if [[ -f "$HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh" ]]; then
@@ -27,6 +24,9 @@ if [[ -f "$HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh" ]]; then
 fi
 
 # Bash prompt setup
+if [[ -f "$HOMEBREW_PREFIX/opt/kube-ps1/share/kube-ps1.sh" ]]; then
+  source "$HOMEBREW_PREFIX/opt/kube-ps1/share/kube-ps1.sh"
+fi
 
 if [[ -n $PS1 && -f "$XDG_CONFIG_HOME/bash/.bash_prompt" ]]; then
   . "$XDG_CONFIG_HOME/bash/.bash_prompt"
@@ -54,3 +54,6 @@ export PATH="$HOME/go/bin:$PATH"
 
 bind '"\e[A": history-search-backward'
 bind '"\eOA": history-previous-history'
+
+# Added by LM Studio CLI (lms)
+export PATH="$PATH:/Users/hagzag/.lmstudio/bin"

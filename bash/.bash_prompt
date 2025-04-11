@@ -77,7 +77,7 @@ function ps1_blue_theme {
   c_user_nonroot="$c_blue"
   c_hostname="$c_blue"
   c_dir_path="$c_blue"
-  c_git_branch="$c_blue"
+  c_git_branch="$c_red"
   c_shell_jobs="$c_blue"
   c_text_input="$c_red"
   setup_ps1
@@ -177,6 +177,9 @@ function setup_ps1 {
 
   # <N> Number of jobs running and sleeping
   PS1+="\$(wrap '<> ' \$(color_jobs $c_shell_jobs))"
+
+  # kube context
+  PS1+="\$(kube_ps1) ..."
 
   # Second part of the line drawing
   PS1+="\n${c_token}└─ "
